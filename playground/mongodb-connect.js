@@ -7,27 +7,37 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', (err, db) => {
   console.log('connected to mongodb server')
 
 
-  // db.collection('Todos').insertOne({
-  //   text: 'something to do',
-  //   completed: false
-  // }, (err, result)=> {
-  //   if (err) {
-  //     return console.log('error with insertOne Todos collection into TodoApp',err);
-  //   }
-  //   console.log(JSON.stringify(result.ops,undefined,2));
-  // });
-
-  db.collection('Users').insertOne({
-    name: 'Duncan',
-    age: 27,
-    location: 'Victoria'
-  }, (err, result) => {
-    if (err){
-      return console.log('could not insert new user collection',err);
+  db.collection('Todos').insertOne({
+    text: 'Trim hedge',
+    completed: false
+  }, (err, result)=> {
+    if (err) {
+      return console.log('error with insertOne Todos collection into TodoApp',err);
     }
-    console.log(`You inserted: ${JSON.stringify(result.ops, undefined, 2)}`);
-    console.log(result.ops[0]._id.getTimestamp());
+    console.log(JSON.stringify(result.ops,undefined,2));
   });
+
+  db.collection('Todos').insertOne({
+    text: 'Go to IMAX',
+    completed: true
+  }, (err, result)=> {
+    if (err) {
+      return console.log('error with insertOne Todos collection into TodoApp',err);
+    }
+    console.log(JSON.stringify(result.ops,undefined,2));
+  }); 
+
+  // db.collection('Users').insertOne({
+  //   name: 'Duncan',
+  //   age: 27,
+  //   location: 'Victoria'
+  // }, (err, result) => {
+  //   if (err){
+  //     return console.log('could not insert new user collection',err);
+  //   }
+  //   console.log(`You inserted: ${JSON.stringify(result.ops, undefined, 2)}`);
+  //   console.log(result.ops[0]._id.getTimestamp());
+  // });
 
   db.close();
 
