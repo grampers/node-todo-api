@@ -17,7 +17,7 @@ var User = mongoose.model(
       minlength: 1
     },
     location: {
-      type: string,
+      type: String,
       minlength: 1,
       trim: true
     }
