@@ -11,6 +11,15 @@ var app = express();
 
 app.use(bodyParser.json());
   
+app.get('/todos', (req,res) => {
+  Todo.find()
+  .then(
+    (todos) => res.send({todos}),
+    (e) => res.status(400).send(`Error: ${e}`));
+});
+
+
+
 app.post('/todos', (req,res) => {
   var todo = new Todo({
     text: req.body.text
@@ -21,6 +30,8 @@ app.post('/todos', (req,res) => {
     (e) => res.status(400).send(`ERROR ${e} `)
     )
 });
+
+
 
   app.post('/users', (req,res) => {
     var user = new User({
@@ -36,6 +47,9 @@ app.post('/todos', (req,res) => {
     (e) => res.status(400).send(`ERROR ${e}`)
     )
 });
+
+
+
 app.listen(3000, () => console.log('started on port 3000'));
 
 module.exports = {app};
