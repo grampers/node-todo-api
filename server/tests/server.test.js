@@ -22,6 +22,7 @@ beforeEach((done) => {
 });
 
 
+
 describe('Post /todos', () => {
   it('should create a new todo', (done) => {
     var text = "Test another todo text";
@@ -32,10 +33,7 @@ describe('Post /todos', () => {
       .expect((res)=> {
         expect(res.body.text).toBe(text);
       })
-      .end((err, res) => {
-        if (err){
-          return done(err); 
-        }
+      .expect((res) => {
         Todo.find({text}).then(
           (todos) => {
             console.log(`text is ${todos[0].text}`)
@@ -43,11 +41,16 @@ describe('Post /todos', () => {
             expect(todos[0].text).toBe(text);
             done();
           }).catch((error) => done(error));
+      })
+      // .end(done);
+      .end((err, res) => {
+        if (err){
+          return done(err); 
+        }
 
       });
-
-  });
-
+    });
+  
   it('should not create todo if body data is invalid' ,(done) => {
     request(app)
       .post('/todos')
@@ -75,6 +78,12 @@ describe('GET /todos', () => {
       .expect((res) => {
         expect(res.body.todos.length).toBe(2);
       })
-      .end(done);
+      // //.end(done); <<-- alternative to the following 5 lines
+      .end((err, res)=> {
+        if (err){
+          return done(err);
+        }
+        return done();
+      })
   });
 });
