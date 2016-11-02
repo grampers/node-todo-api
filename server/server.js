@@ -49,7 +49,6 @@ app.post('/todos', (req,res) => {
 });
 
 
-
   app.post('/users', (req,res) => {
     var user = new User({
       name:  req.body.name,
@@ -65,7 +64,22 @@ app.post('/todos', (req,res) => {
     )
 });
 
+app.delete('/todos/:id', (req,res)=> {
+  var id = req.params.id;
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send();
+  }
+  Todo.findByIdAndRemove(id)
+    .then(
+      (todo) => {
+        if (!todo){
+          return res.status(404).send('todo not removed');
+        }
+        res.status(200).send(`removed ${todo}`);
+      })
+      .catch((e) => res.status(400).send('problem somewhere'));
 
+});
 
 app.listen(port, () => console.log(`started on port ${ port }`));
  
