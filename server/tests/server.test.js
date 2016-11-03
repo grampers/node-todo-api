@@ -8,12 +8,15 @@ const { Todo } = require('../../server/models/todo');
 
 const todos = [
   {
-    text: 'first todo',
-    _id: new ObjectID()
+    text: 'first changed thing todo',
+    _id: new ObjectID(),
+    completed: false
   },
   {
-    text: 'second todo',
-    _id: new ObjectID()
+    text: 'second  changing to nothing  todo',
+    _id: new ObjectID(),
+    completed: true,
+    completedAt: 333
   }
 ]
 
@@ -160,5 +163,52 @@ describe('DELETE /todos/:id', () => {
     .delete(`/todos/${invalidId}`)
     .expect(404)
     .end(done)
+  });
+});
+
+
+describe('PATCH/todos/:id' ,() => {
+  it('should update todo given valid id' , (done) => {
+    var id = todos[0]._id.toHexString();
+    console.log(todos[0].text);
+
+    var text = "Some new stuff for the first todo";
+    request(app)
+      .patch(`/todos/${id}`)
+      .send({
+        text: text,
+        completed: false
+      })
+      .expect(200)
+      .expect((res) => {
+        console.log(`completedAt in array ${todos[0].completedAt}`);
+        console.log(`completedAt returned in res ${res.body.todo.completedAt}`);
+        console.log(`object ${JSON.stringify(res.body.todo, undefined, 2)}`);
+        expect(res.body.todo.text).toBe(text);
+        expect(res.body.todo.completed).toBe(false);
+        expect(res.body.todo.completedAt).toBe(null);
+      })
+      .end(done)
+
+  });
+
+    it('should clear completedAt when todo not completed' , (done) => {
+    var id = todos[1]._id.toHexString();
+
+    var text = "Some changes for the second todo";
+    request(app)
+      .patch(`/todos/${id}`)
+      .send({
+        text: text,
+        completed: true
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.completedAt).toBeA('number');
+        expect(res.body.todo.completed).toBe(true);
+        expect(res.body.todo.text).toBe(text);
+      })
+      .end(done);
+
   });
 });
