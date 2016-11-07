@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const { ObjectID } = require('mongodb');
 const _ = require('lodash');
 
+
 const  mongoose  = require('./db/mongoose');
 
 
@@ -51,21 +52,8 @@ app.post('/todos', (req,res) => {
 });
 
 
-  app.post('/users', (req,res) => {
-    var user = new User({
-      name:  req.body.name,
-      age: req.body.age,
-      locaton: req.body.location,
-      email: req.body.email
-    });
 
-  user.save()
-  .then(
-    (doc) => res.send(doc),
-    (e) => res.status(400).send(`ERROR ${e}`)
-    )
-});
-
+//DELETE TODOS BY ID
 app.delete('/todos/:id', (req,res)=> {
   var id = req.params.id;
   if (!ObjectID.isValid(id)) {
@@ -108,6 +96,25 @@ app.patch('/todos/:id', (req, res) => {
     res.status(400).send();
   })
 });
+
+//POST NEW USER
+  app.post('/users', (req,res) => {
+    var body = _.pick(req.body, ['email', 'password']);
+    var user = new User(body);
+
+
+    user.save().then(
+      () =>  {
+        return user.generateAuthToken();
+      }).then (
+        (token) => {
+          res.header("x-auth", token).send(user);
+      })
+      .catch((e) => {
+        res.status(400).send(e);
+      });
+});
+
 
 var port = process.env.PORT;
 app.listen(port, () => console.log(`started on port ${ port }`));

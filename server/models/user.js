@@ -1,26 +1,80 @@
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
+const validator = require('validator')
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const _ = require('lodash');
 
-
-var User = mongoose.model(
-  'User',
-  {
-    name: {
-      type: String,
-      required: true,
-      minlength: 1,
-      trim: true
-    },
+var UserSchema = new mongoose.Schema({
     email: {
       type: String,
       required: true,
       trim: true,
-      minlength: 1
-    },
-    location: {
-      type: String,
       minlength: 1,
-      trim: true
-    }
+      unique: true,
+      validate: {
+        validator: validator.isEmail,
+        message: '{VALUE} is not a valid email'
+      }
+    },
+    password: {
+      type: String,
+      required: true,
+      minlength: 8
+    },
+    tokens: [{
+        access: {
+          type: String,
+          required: true
+        },
+        token: {
+          type: String,
+          required: true
+        }
+      }]
 });
+
+UserSchema.methods.toJSON = function() {
+  var user = this;
+  var userObject = user.toObject();
+  return _.pick(userObject, ['_id', 'email']);
+}
+
+UserSchema.methods.toJSON = function () {
+  var user = this;
+  var userObject = user.toObject();
+
+  return _.pick(userObject, ['_id', 'email']);
+};
+
+UserSchema.methods.generateAuthToken = function() {
+  var user = this;
+  var access = 'auth';
+  var token = jwt.sign({ id: user._id.toHexString(), access}, 'secret').toString();
+  user.tokens.push({access, token});
+
+  return user.save().then(() => {
+    return token;
+  });
+};
+
+
+
+
+UserSchema.pre('save', function(next) {
+  var user = this;
+  if (user.isModified()) {
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(user.password, salt, (err, hash) =>{
+        user.password = hash;
+        next();
+      });
+    })
+  } else {
+    next();
+  }
+});
+
+var User = mongoose.model('User', UserSchema);
+
 
 module.exports = { User }
