@@ -4,11 +4,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { ObjectID } = require('mongodb');
 const _ = require('lodash');
-
-
 const  mongoose  = require('./db/mongoose');
 
-
+const {authenticate} = require('./middleware/authenticate');
 var { Todo } = require('./models/todo');
 var { User } = require('./models/user');
 
@@ -113,6 +111,13 @@ app.patch('/todos/:id', (req, res) => {
       .catch((e) => {
         res.status(400).send(e);
       });
+});
+
+
+
+// sample private route which gets authenticated user
+app.get('/users/me', authenticate, (req, res) => {
+  res.send(req.user);
 });
 
 
