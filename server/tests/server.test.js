@@ -5,28 +5,11 @@ const { ObjectID } = require('mongodb');
 
 const { app } = require('../server');
 const { Todo } = require('../../server/models/todo');
-
-const todos = [
-  {
-    text: 'first changed thing todo',
-    _id: new ObjectID(),
-    completed: false
-  },
-  {
-    text: 'second  changing to nothing  todo',
-    _id: new ObjectID(),
-    completed: true,
-    completedAt: 333
-  }
-]
+const { todos, populateTodos, users, populateUsers } = require('./seed/seed');
 
 
-beforeEach((done) => {
-  Todo.remove({}).then(() => {
-    return Todo.insertMany(todos);
-  }).then(() => done());
-});
-
+beforeEach(populateUsers);
+beforeEach(populateTodos);
 
 
 describe('Post /todos', () => {
@@ -42,7 +25,7 @@ describe('Post /todos', () => {
       .expect((res) => {
         Todo.find({text}).then(
           (todos) => {
-            console.log(`text is ${todos[0].text}`)
+            // console.log(`text is ${todos[0].text}`)
             expect(todos.length).toBe(1);
             expect(todos[0].text).toBe(text);
             done();
@@ -106,7 +89,7 @@ describe('GET /todos/:id', () => {
 
   it('should return  todo doc if given a valid id', (done) => {
     var id = todos[0]._id.toHexString();
-    console.log(`id is ${id}`);
+    // console.log(`id is ${id}`);
     request(app)
       .get(`/todos/${id}`)
       .expect(200)
@@ -170,7 +153,7 @@ describe('DELETE /todos/:id', () => {
 describe('PATCH/todos/:id' ,() => {
   it('should update todo given valid id' , (done) => {
     var id = todos[0]._id.toHexString();
-    console.log(todos[0].text);
+    // console.log(todos[0].text);
 
     var text = "Some new stuff for the first todo";
     request(app)
@@ -181,9 +164,9 @@ describe('PATCH/todos/:id' ,() => {
       })
       .expect(200)
       .expect((res) => {
-        console.log(`completedAt in array ${todos[0].completedAt}`);
-        console.log(`completedAt returned in res ${res.body.todo.completedAt}`);
-        console.log(`object ${JSON.stringify(res.body.todo, undefined, 2)}`);
+        // console.log(`completedAt in array ${todos[0].completedAt}`);
+        // console.log(`completedAt returned in res ${res.body.todo.completedAt}`);
+        // console.log(`object ${JSON.stringify(res.body.todo, undefined, 2)}`);
         expect(res.body.todo.text).toBe(text);
         expect(res.body.todo.completed).toBe(false);
         expect(res.body.todo.completedAt).toBe(null);
@@ -212,3 +195,21 @@ describe('PATCH/todos/:id' ,() => {
 
   });
 });
+
+describe('GET /users/me', () => {
+  it('should return user if authenticated', (done) => {
+    request(app)
+      .get('/users/me')
+      .set('x-auth', users[0].tokens[0].token)
+      // .expect(200)
+      .expect((res) => {
+        expect(res.body).toBe(users[0]._id.toHexString());
+        expect(res.body.email).toBe(users[0].email);
+      })
+      .end(done);
+  });
+
+
+});
+
+

@@ -19,3 +19,5 @@ bcrypt.genSalt(10,  function(err, salt){
     console.log(hash);
   })
 });
+
+bcrypt.compare(password, )
