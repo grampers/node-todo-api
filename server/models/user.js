@@ -57,6 +57,7 @@ UserSchema.statics.findByToken = function(token) {
   var decoded;
   try {
     decoded = jwt.verify(token, 'secret');
+    console.log('decoded', JSON.stringify(decoded, undefined, 2));
   } catch(e) {
     // return new Promise((resolve, reject) => {
     //   reject()); 
@@ -64,7 +65,7 @@ UserSchema.statics.findByToken = function(token) {
    }
 
   return User.findOne( {
-    '_id': decoded.id,
+    '_id': decoded._id,
     'tokens.token': token,
     'tokens.access': 'auth'
   });
